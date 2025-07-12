@@ -10,25 +10,27 @@ from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 # === 1. Đường dẫn ===
 BASE_DIR = os.getcwd()
-DATA_PATH = os.path.join(BASE_DIR, "data", "phishing.arff")
 RESULT_DIR = os.path.join(BASE_DIR, "result")
-os.makedirs(RESULT_DIR, exist_ok=True)
+PREPROC_DIR = os.path.join(RESULT_DIR, "preprocessing")
+DATA_PATH = os.path.join(BASE_DIR, "data", "phishing.arff")
+os.makedirs(PREPROC_DIR, exist_ok=True)
 
-# === 2. Đọc dữ liệu ===
+# === 2. Đọc dữ liệu ARFF ===
 with open(DATA_PATH, "r") as f:
     data = arff.load(f)
 columns = [col[0] for col in data["attributes"]]
 df = pd.DataFrame(data["data"], columns=columns).astype(int)
+round_digits = 4
 
-# === 3. Hiển thị 10 dòng đầu và lưu bảng ===
-df_10 = df.head(10).copy()
-df_10.insert(0, "STT", range(1, 11))
-wrapped_columns = ["STT"] + [textwrap.fill(col, width=12) for col in columns]
-
+# === 3. Lưu file raw_data.csv và bảng ảnh 10 dòng đầu ===
+df.to_csv(os.path.join(PREPROC_DIR, "raw_data.csv"), index=False)
+df_raw10 = df.head(10).copy()
+df_raw10.insert(0, "STT", range(1, 11))
+wrapped_columns = ["STT"] + [textwrap.fill(col, width=12) for col in df_raw10.columns if col != "STT"]
 fig, ax = plt.subplots(figsize=(30, 8))
 ax.axis('off')
 table = ax.table(
-    cellText=df_10.values,
+    cellText=df_raw10.values,
     colLabels=wrapped_columns,
     loc='center',
     cellLoc='center',
@@ -45,21 +47,59 @@ for pos, cell in table.get_celld().items():
     else:
         cell.set_fontsize(10)
 plt.tight_layout()
-plt.savefig(os.path.join(RESULT_DIR, "df_head_input.png"), dpi=300)
+plt.savefig(os.path.join(PREPROC_DIR, "df_head_raw.png"), dpi=300)
 plt.close()
-print("✅ Đã lưu bảng dữ liệu mẫu.")
+print("✅ Đã lưu raw_data.csv và df_head_raw.png")
 
-# === 4. Tách dữ liệu và chuẩn hoá ===
+# === 4. Chuẩn hóa dữ liệu ===
 X_raw = df.drop("Result", axis=1)
 y_raw = df["Result"]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_raw)
 
-# === 5. Áp dụng SMOTE ===
+# === 5. SMOTE ===
 smote = SMOTE(random_state=42)
-X_final, y_final = smote.fit_resample(X_scaled, y_raw)
+X_resampled, y_resampled = smote.fit_resample(X_scaled, y_raw)
 
-# === 6. Biểu đồ phân bố nhãn ===
+# === 6. Chọn 20 đặc trưng bằng SelectKBest ===
+selector = SelectKBest(mutual_info_classif, k=20)
+selector.fit(X_resampled, y_resampled)
+selected_columns = X_raw.columns[selector.get_support()]
+X_selected = pd.DataFrame(X_resampled, columns=X_raw.columns)[selected_columns]
+df_processed = X_selected.copy()
+df_processed["Result"] = y_resampled.values
+df_processed_rounded = df_processed.round(round_digits)
+
+# === 7. Lưu processed_data.csv (20 cột + nhãn) và bảng ảnh ===
+df_processed_rounded.to_csv(os.path.join(PREPROC_DIR, "processed_data.csv"), index=False)
+df_proc10 = df_processed_rounded.head(10).copy()
+df_proc10.insert(0, "STT", range(1, 11))
+wrapped_proc_cols = ["STT"] + [textwrap.fill(col, width=14) for col in df_proc10.columns if col != "STT"]
+fig, ax = plt.subplots(figsize=(30, 8))
+ax.axis('off')
+table = ax.table(
+    cellText=df_proc10.values,
+    colLabels=wrapped_proc_cols,
+    loc='center',
+    cellLoc='center',
+    colLoc='center',
+    bbox=[0.05, 0, 0.9, 1]
+)
+table.auto_set_font_size(False)
+table.scale(1.2, 2.3)
+for pos, cell in table.get_celld().items():
+    row, col = pos
+    if row == 0:
+        cell.set_fontsize(8)
+        cell.set_text_props(weight='bold')
+    else:
+        cell.set_fontsize(10)
+plt.tight_layout()
+plt.savefig(os.path.join(PREPROC_DIR, "df_head_processed.png"), dpi=300)
+plt.close()
+print("✅ Đã lưu processed_data.csv và df_head_processed.png")
+
+# === 8. Biểu đồ phân bố nhãn trước/sau SMOTE ===
 plt.figure(figsize=(10, 4))
 plt.subplot(1, 2, 1)
 sns.countplot(x=y_raw, hue=y_raw, palette="Set2", legend=False)
@@ -67,49 +107,47 @@ plt.title("Trước SMOTE")
 plt.xlabel("Result")
 plt.ylabel("Số lượng")
 plt.xticks([0, 1], ["-1", "1"])
-
 plt.subplot(1, 2, 2)
-sns.countplot(x=y_final, hue=y_final, palette="Set2", legend=False)
+sns.countplot(x=y_resampled, hue=y_resampled, palette="Set2", legend=False)
 plt.title("Sau SMOTE")
 plt.xlabel("Result")
 plt.ylabel("Số lượng")
 plt.xticks([0, 1], ["-1", "1"])
-
 plt.suptitle("Phân bố nhãn Result trước và sau SMOTE", fontsize=14)
 plt.tight_layout(rect=[0, 0, 1, 0.95])
-plt.savefig(os.path.join(RESULT_DIR, "class_distribution.png"), dpi=300)
+plt.savefig(os.path.join(PREPROC_DIR, "class_distribution.png"), dpi=300)
 plt.close()
-print("✅ Đã lưu hình phân bố nhãn.")
+print("✅ Đã lưu biểu đồ phân bố nhãn")
 
-# === 7. Chọn 20 đặc trưng bằng SelectKBest ===
-selector = SelectKBest(mutual_info_classif, k=20)
-selector.fit(X_raw, y_raw)
-selected_columns = X_raw.columns[selector.get_support()]
-
-# === 8. Lưu danh sách đặc trưng ===
-with open(os.path.join(RESULT_DIR, "selected_features.txt"), "w", encoding="utf-8") as f:
+# === 9. Lưu danh sách đặc trưng ===
+with open(os.path.join(PREPROC_DIR, "selected_features.txt"), "w", encoding="utf-8") as f:
     f.write("20 đặc trưng được chọn bởi SelectKBest:\n\n")
     for i, col in enumerate(selected_columns, 1):
         f.write(f"{i:2d}. {col}\n")
-print("✅ Đã lưu danh sách đặc trưng vào selected_features.txt")
+print("✅ Đã lưu danh sách đặc trưng")
 
-# === 9. Vẽ Boxplot cho 20 đặc trưng trên cùng một biểu đồ ===
+# === 10. Boxplot ===
 plt.figure(figsize=(20, 8))
-sns.boxplot(data=df[selected_columns], orient="h", palette="Set2")  # Vẽ ngang
+sns.boxplot(data=df_processed[selected_columns], orient="h", palette="Set2")
 plt.title("Boxplot của 20 đặc trưng quan trọng nhất", fontsize=14)
-plt.xlabel("Giá trị")
-plt.ylabel("Thuộc tính")
+plt.xlabel("Giá trị (sau chuẩn hóa)")
+plt.ylabel("Đặc trưng")
 plt.tight_layout()
-plt.savefig(os.path.join(RESULT_DIR, "boxplot_20_features.png"), dpi=300)
+plt.savefig(os.path.join(PREPROC_DIR, "boxplot_20_features.png"), dpi=300)
 plt.close()
+print("✅ Đã lưu boxplot 20 đặc trưng")
 
-print("✅ Đã lưu hình boxplot 20 đặc trưng (gộp).")
-
-# === 10. Heatmap tương quan ===
+# === 11. Heatmap tương quan ===
 plt.figure(figsize=(12, 10))
-sns.heatmap(df[selected_columns].corr(), cmap="coolwarm", annot=False, fmt=".2f", square=True)
+sns.heatmap(df_processed[selected_columns].corr(), cmap="coolwarm", annot=True, fmt=".2f", square=True)
 plt.title("Heatmap tương quan giữa 20 đặc trưng quan trọng")
 plt.tight_layout()
-plt.savefig(os.path.join(RESULT_DIR, "heatmap_corr_20_features.png"), dpi=300)
+plt.savefig(os.path.join(PREPROC_DIR, "heatmap_corr_20_features.png"), dpi=300)
 plt.close()
-print("✅ Đã lưu heatmap tương quan giữa 20 đặc trưng.")
+print("✅ Đã lưu heatmap tương quan")
+
+# === 12. In ra console (5 dòng) ===
+print("\n🟦 DỮ LIỆU GỐC:")
+print(df.head(5))
+print("\n🟩 DỮ LIỆU SAU XỬ LÝ (20 cột + Result):")
+print(df_processed.head(5))

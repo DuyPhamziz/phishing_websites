@@ -1,0 +1,22 @@
+20 đặc trưng được chọn bởi SelectKBest:
+
+ 1. having_IP_Address
+ 2. URL_Length
+ 3. Shortining_Service
+ 4. Prefix_Suffix
+ 5. having_Sub_Domain
+ 6. SSLfinal_State
+ 7. Domain_registeration_length
+ 8. port
+ 9. Request_URL
+10. URL_of_Anchor
+11. Links_in_tags
+12. SFH
+13. on_mouseover
+14. RightClick
+15. age_of_domain
+16. DNSRecord
+17. web_traffic
+18. Page_Rank
+19. Google_Index
+20. Links_pointing_to_page
