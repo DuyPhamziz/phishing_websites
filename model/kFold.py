@@ -8,27 +8,27 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.tree import plot_tree
 
-# === 1. Đường dẫn ===
+# === Đường dẫn ===
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "result", "preprocessing", "processed_data.csv"))
 RF_RESULT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "result", "RandomForest"))
 os.makedirs(RF_RESULT_DIR, exist_ok=True)
 
-# === 2. Đọc dữ liệu ===
+# ===  Đọc dữ liệu ===
 print("\U0001F4E5 Đang đọc dữ liệu đã tiền xử lý...")
 if not os.path.exists(DATA_PATH):
     print(f"❌ Không tìm thấy file: {DATA_PATH}")
     exit()
 
 data = pd.read_csv(DATA_PATH)
-print("✅ Đọc dữ liệu thành công!")
+print(" Đọc dữ liệu thành công!")
 
-# === 3. Đặc trưng và nhãn ===
+# === Đặc trưng và nhãn ===
 X = data.drop(columns=['Result'])
 y = data['Result']
 feature_names = X.columns
 
-# === 4. Thực hiện K-Fold CV ===
+# ===  Thực hiện K-Fold CV ===
 k = 5
 kf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
@@ -59,7 +59,7 @@ for depth in depths:
         "F1-score": np.mean(f1s)
     })
 
-# === 5. Vẽ biểu đồ thực nghiệm ===
+# === Vẽ biểu đồ thực nghiệm ===
 df_result = pd.DataFrame(results)
 df_result.set_index("Depth", inplace=True)
 df_result_percent = df_result * 100
@@ -88,4 +88,4 @@ ax.legend(loc="lower right")
 plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "depth_vs_metrics_kfold.png"), dpi=300)
 plt.close()
-print("✅ Đã lưu biểu đồ thực nghiệm các độ đo theo độ sâu với K-Fold!")
+print("Đã lưu biểu đồ thực nghiệm các độ đo theo độ sâu với K-Fold!")

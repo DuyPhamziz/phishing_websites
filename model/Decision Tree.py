@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "..", "data", "phishing.arff")
 MODEL_DIR = os.path.join(BASE_DIR, "models")
-
-# 🔥 Thư mục riêng cho kết quả DecisionTree
 RESULT_DIR = os.path.join(BASE_DIR, "..", "result", "DecisionTree")
 os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(RESULT_DIR, exist_ok=True)

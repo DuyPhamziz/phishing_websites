@@ -13,15 +13,15 @@ from sklearn.linear_model import Perceptron
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 
-# === 1. Đường dẫn ===
+# === Đường dẫn ===
 BASE_DIR = os.getcwd()
 RAW_DATA_PATH = os.path.join(BASE_DIR, "data", "phishing.arff")
 PROCESSED_DATA_PATH = os.path.join(BASE_DIR, "result", "preprocessing", "processed_data.csv")
 RESULT_DIR = os.path.join(BASE_DIR, "result", "model_comparison")
 os.makedirs(RESULT_DIR, exist_ok=True)
 
-# === 2. Đọc dữ liệu raw từ .arff ===
-print("📥 Đọc dữ liệu RAW từ .arff...")
+# === Đọc dữ liệu raw từ .arff ===
+print("Đọc dữ liệu RAW từ .arff...")
 data, meta = arff.loadarff(RAW_DATA_PATH)
 df_raw = pd.DataFrame(data)
 df_raw = df_raw.applymap(lambda x: int(x.decode('utf-8')) if isinstance(x, bytes) else int(x))
@@ -29,13 +29,13 @@ df_raw = df_raw.applymap(lambda x: int(x.decode('utf-8')) if isinstance(x, bytes
 X_raw = df_raw.drop("Result", axis=1)
 y_raw = df_raw["Result"]
 
-# === 3. Đọc dữ liệu đã tiền xử lý ===
-print("📥 Đọc dữ liệu đã tiền xử lý...")
+# ===  Đọc dữ liệu đã tiền xử lý ===
+print("Đọc dữ liệu đã tiền xử lý...")
 df_processed = pd.read_csv(PROCESSED_DATA_PATH)
 X_processed = df_processed.drop(columns=["Result"])
 y_processed = df_processed["Result"]
 
-# === 4. Khởi tạo mô hình ===
+# === Khởi tạo mô hình ===
 models = {
     "DecisionTree": DecisionTreeClassifier(),
     "RandomForest": RandomForestClassifier(n_estimators=100),
@@ -48,7 +48,7 @@ compare_scores = []
 cm_processed_all = {}
 
 for name, model in models.items():
-    print(f"🔍 Đang xử lý mô hình: {name}")
+    print(f"Đang xử lý mô hình: {name}")
 
     # Dữ liệu RAW
     X_train_raw, X_test_raw, y_train_raw, y_test_raw = train_test_split(
@@ -82,7 +82,7 @@ for name, model in models.items():
         "F1 (Processed)": report_proc["weighted avg"]["f1-score"],
     })
 
-    # === Ghi classification_report vào file riêng ===
+    # === Ghi classification_report ===
     with open(os.path.join(RESULT_DIR, f"{name}_classification_report.txt"), "w", encoding="utf-8") as f_report:
         f_report.write(f"[{name}] Classification Report - RAW\n")
         f_report.write(classification_report(y_test_raw, pred_raw))
@@ -90,14 +90,14 @@ for name, model in models.items():
         f_report.write(f"[{name}] Classification Report - PROCESSED\n")
         f_report.write(classification_report(y_test_proc, pred_proc))
 
-    # === Lưu confusion matrix PROCESSED để vẽ chung sau
+    # === Lưu confusion matrix PROCESSED 
     cm_processed_all[name] = confusion_matrix(y_test_proc, pred_proc)
 
-# === 5. Lưu bảng kết quả ===
+# === Lưu bảng kết quả ===
 df_compare = pd.DataFrame(compare_scores)
 df_compare.to_csv(os.path.join(RESULT_DIR, "score_comparison.csv"), index=False)
 
-# === 6. Biểu đồ tổng hợp các chỉ số (processed) ===
+# === Biểu đồ tổng hợp các chỉ số (processed) ===
 metrics = ["Accuracy", "Precision", "Recall", "F1"]
 bar_width = 0.15
 index = np.arange(len(df_compare["Model"]))
@@ -120,18 +120,18 @@ plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "processed_models_comparison.png"))
 plt.close()
 
-# === 7. Báo cáo chi tiết TXT ===
+# === Báo cáo chi tiết TXT ===
 txt_path = os.path.join(RESULT_DIR, "score_comparison.txt")
 with open(txt_path, "w", encoding="utf-8") as f:
     for row in compare_scores:
-        f.write(f"📊 Model: {row['Model']}\n")
+        f.write(f" Model: {row['Model']}\n")
         f.write(f"  - Accuracy:    {row['Accuracy (Raw)']:.4f} → {row['Accuracy (Processed)']:.4f}\n")
         f.write(f"  - Precision:   {row['Precision (Raw)']:.4f} → {row['Precision (Processed)']:.4f}\n")
         f.write(f"  - Recall:      {row['Recall (Raw)']:.4f} → {row['Recall (Processed)']:.4f}\n")
         f.write(f"  - F1-Score:    {row['F1 (Raw)']:.4f} → {row['F1 (Processed)']:.4f}\n")
         f.write("-" * 50 + "\n")
 
-# === 8. Vẽ nhiều confusion matrix (processed) trên 1 hình ===
+# === Vẽ nhiều confusion matrix (processed) trên 1 hình ===
 n_models = len(cm_processed_all)
 cols = 3
 rows = (n_models + cols - 1) // cols
@@ -151,4 +151,4 @@ for ax in axes[len(cm_processed_all):]:
 plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "all_confusion_matrices_processed.png"))
 plt.close()
-print("📊 Đã lưu confusion matrix tổng hợp: all_confusion_matrices_processed.png")
+print("Đã lưu confusion matrix tổng hợp: all_confusion_matrices_processed.png")

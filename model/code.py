@@ -16,13 +16,13 @@ from sklearn.metrics import (
     confusion_matrix, ConfusionMatrixDisplay
 )
 
-# ==== 1. Đường dẫn ====
+# ==== Đường dẫn ====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "..", "result", "preprocessing", "cleaned_data.csv")
 RESULT_DIR = os.path.join(BASE_DIR, "result", "model_with_outlier_removal")
 os.makedirs(RESULT_DIR, exist_ok=True)
 
-# ==== 2. Hàm loại bỏ outlier ====
+# ==== Hàm loại bỏ outlier ====
 def remove_outliers_iqr(df, columns):
     df_cleaned = df.copy()
     for col in columns:
@@ -34,19 +34,19 @@ def remove_outliers_iqr(df, columns):
         df_cleaned = df_cleaned[(df_cleaned[col] >= lower) & (df_cleaned[col] <= upper)]
     return df_cleaned
 
-# ==== 3. Đọc dữ liệu ====
-print("📥 Đang đọc dữ liệu đã tiền xử lý...")
+# ==== Đọc dữ liệu ====
+print("Đang đọc dữ liệu đã tiền xử lý...")
 df = pd.read_csv(DATA_PATH)
 
 features = df.drop(columns=["Result"]).columns.tolist()
 df_no_outlier = remove_outliers_iqr(df, features)
 
-print(f"🔍 Số mẫu ban đầu: {df.shape[0]} → Sau khi loại outlier: {df_no_outlier.shape[0]}")
+print(f"Số mẫu ban đầu: {df.shape[0]} → Sau khi loại outlier: {df_no_outlier.shape[0]}")
 
 X = df_no_outlier.drop(columns=["Result"])
 y = df_no_outlier["Result"]
 
-# ==== 4. Phân phối nhãn sau xử lý outlier ====
+# ==== Phân phối nhãn sau xử lý outlier ====
 plt.figure(figsize=(6, 4))
 sns.countplot(x=y, palette="Set2")
 plt.title("Phân phối nhãn sau khi loại outlier")
@@ -56,12 +56,12 @@ plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "label_distribution.png"))
 plt.close()
 
-# ==== 5. Tách train/test ====
+# ==== Tách train/test ====
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# ==== 6. Huấn luyện và đánh giá ====
+# ==== Huấn luyện và đánh giá ====
 models = {
     "DecisionTree": DecisionTreeClassifier(),
     "RandomForest": RandomForestClassifier(n_estimators=100),
@@ -73,7 +73,7 @@ models = {
 results = []
 
 for name, model in models.items():
-    print(f"🔍 Đang huấn luyện: {name}")
+    print(f"Đang huấn luyện: {name}")
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
@@ -98,7 +98,7 @@ for name, model in models.items():
     plt.savefig(os.path.join(RESULT_DIR, f"confusion_matrix_{name.lower()}.png"))
     plt.close()
 
-# ==== 7. Biểu đồ so sánh ====
+# ====  Biểu đồ so sánh ====
 df_result = pd.DataFrame(results)
 df_result.to_csv(os.path.join(RESULT_DIR, "score_comparison.csv"), index=False)
 
@@ -122,4 +122,4 @@ plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "all_metrics_combined.png"))
 plt.close()
 
-print("✅ Hoàn tất! Đã lưu kết quả vào:", RESULT_DIR)
+print("Hoàn tất! Đã lưu kết quả vào:", RESULT_DIR)

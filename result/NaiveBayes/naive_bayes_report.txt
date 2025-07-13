@@ -1,4 +1,4 @@
-📊 Mô hình: Naive Bayes
+Mô hình: Naive Bayes
 
 Accuracy: 0.6330
 

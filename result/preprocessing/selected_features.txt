@@ -2,7 +2,7 @@
 
  1. having_IP_Address
  2. URL_Length
- 3. Shortining_Service
+ 3. having_At_Symbol
  4. Prefix_Suffix
  5. having_Sub_Domain
  6. SSLfinal_State
@@ -12,11 +12,11 @@
 10. URL_of_Anchor
 11. Links_in_tags
 12. SFH
-13. on_mouseover
-14. RightClick
-15. age_of_domain
-16. DNSRecord
+13. Abnormal_URL
+14. Redirect
+15. on_mouseover
+16. age_of_domain
 17. web_traffic
 18. Page_Rank
 19. Google_Index
-20. Links_pointing_to_page
+20. Statistical_report

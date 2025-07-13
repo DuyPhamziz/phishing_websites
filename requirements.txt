@@ -1,7 +1,0 @@
-# Dành cho Python >= 3.8
-pandas
-scikit-learn
-liac-arff
-joblib
-streamlit
-tldextract

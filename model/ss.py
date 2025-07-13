@@ -10,13 +10,13 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 
-# ==== 1. Đường dẫn ====
+# ====  Đường dẫn ====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PRE_PATH = os.path.join(BASE_DIR, "..", "result", "preprocessing", "processed_data.csv")
 CLEAN_PATH = os.path.join(BASE_DIR, "..", "result", "outliers", "clean_data.csv")
 RESULT_DIR = os.path.join(BASE_DIR, "..", "result", "compare_metrics")
 os.makedirs(RESULT_DIR, exist_ok=True)
-# ==== 2. Danh sách mô hình ====
+# ====  Danh sách mô hình ====
 models = {
     "DecisionTree": DecisionTreeClassifier(),
     "RandomForest": RandomForestClassifier(n_estimators=100),
@@ -39,21 +39,21 @@ def evaluate_model(X, y):
         }
     return scores
 
-# ==== 3. Đọc và đánh giá dữ liệu gốc ====
+# ====  Đọc và đánh giá dữ liệu gốc ====
 df_raw = pd.read_csv(PRE_PATH)
 X_raw = df_raw.drop(columns=["Result"])
 y_raw = df_raw["Result"]
-print("✅ Đánh giá dữ liệu gốc...")
+print(" Đánh giá dữ liệu gốc...")
 scores_raw = evaluate_model(X_raw, y_raw)
 
-# ==== 4. Đọc và đánh giá dữ liệu đã loại outlier ====
+# ==== Đọc và đánh giá dữ liệu đã loại outlier ====
 df_clean = pd.read_csv(CLEAN_PATH)
 X_clean = df_clean.drop(columns=["Result"])
 y_clean = df_clean["Result"]
-print("✅ Đánh giá dữ liệu đã loại outlier...")
+print("Đánh giá dữ liệu đã loại outlier...")
 scores_clean = evaluate_model(X_clean, y_clean)
 
-# ==== 5. Tạo bảng so sánh ====
+# ==== Tạo bảng so sánh ====
 df_result = pd.DataFrame()
 for model in models.keys():
     row = {
@@ -69,10 +69,10 @@ for model in models.keys():
     }
     df_result = pd.concat([df_result, pd.DataFrame([row])], ignore_index=True)
 
-print("\n📊 BẢNG SO SÁNH:")
+print("\n BẢNG SO SÁNH:")
 print(df_result)
 
-# ==== 6. Vẽ biểu đồ tổng hợp ====
+# ==== Vẽ biểu đồ tổng hợp ====
 metrics = ["Accuracy", "Precision", "Recall", "F1-score"]
 bar_width = 0.2
 index = np.arange(len(df_result["Model"])) * 2

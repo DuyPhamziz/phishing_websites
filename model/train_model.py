@@ -16,21 +16,21 @@ from sklearn.metrics import (
     confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, f1_score
 )
 
-# ==== 1. Đường dẫn ====
+# ==== Đường dẫn ====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "..", "result", "preprocessing", "processed_data.csv")
 RESULT_DIR = os.path.join(BASE_DIR, "..", "result", "model_evaluation")
 RESULT_DIR = os.path.abspath(RESULT_DIR)
 os.makedirs(RESULT_DIR, exist_ok=True)
 
-# ==== 2. Đọc dữ liệu đã tiền xử lý ====
-print("📥 Đang đọc dữ liệu đã tiền xử lý...")
+# ==== Đọc dữ liệu đã tiền xử lý ====
+print(" Đang đọc dữ liệu đã tiền xử lý...")
 df = pd.read_csv(DATA_PATH)
 
 X = df.drop(columns=["Result"])
 y = df["Result"]
 
-# ==== 3. Phân phối nhãn ====
+# ==== Phân phối nhãn ====
 plt.figure(figsize=(6, 4))
 sns.countplot(x=y, palette="Set2")
 plt.title("Phân phối nhãn sau tiền xử lý và SMOTE")
@@ -39,12 +39,12 @@ plt.ylabel("Số lượng mẫu")
 plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "label_distribution.png"))
 plt.close()
-print("📊 Đã lưu biểu đồ phân phối nhãn: label_distribution.png")
+print("Đã lưu biểu đồ phân phối nhãn: label_distribution.png")
 
-# ==== 4. K-Fold Stratified ====
+# ==== K-Fold Stratified ====
 kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-# ==== 5. Huấn luyện và đánh giá ====
+# ==== Huấn luyện và đánh giá ====
 models = {
     "DecisionTree": DecisionTreeClassifier(),
     "RandomForest": RandomForestClassifier(n_estimators=100),
@@ -56,7 +56,7 @@ models = {
 results = []
 
 for name, model in models.items():
-    print(f"🔍 Đang huấn luyện: {name}")
+    print(f" Đang huấn luyện: {name}")
     accs, pres, recs, f1s = [], [], [], []
 
     for train_idx, test_idx in kf.split(X, y):
@@ -80,11 +80,11 @@ for name, model in models.items():
         "F1-score": np.mean(f1s),
     })
 
-# ==== 6. Lưu bảng kết quả ====
+# ==== Lưu bảng kết quả ====
 df_result = pd.DataFrame(results)
 df_result.to_csv(os.path.join(RESULT_DIR, "score_comparison.csv"), index=False)
 
-# ==== 7. Vẽ biểu đồ tổng hợp ====
+# ==== Vẽ biểu đồ tổng hợp ====
 metrics = ["Accuracy", "Precision", "Recall", "F1-score"]
 bar_width = 0.15
 index = np.arange(len(df_result["Model"]))
@@ -104,9 +104,9 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "all_metrics_combined.png"))
 plt.close()
-print("📊 Đã vẽ biểu đồ tổng hợp: all_metrics_combined.png")
+print(" Đã vẽ biểu đồ tổng hợp: all_metrics_combined.png")
 
-# ==== 8. Heatmap tương quan ====
+# ==== Heatmap tương quan ====
 corr = df.corr()
 plt.figure(figsize=(14, 10))
 sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", center=0)
@@ -114,9 +114,9 @@ plt.title("Heatmap tương quan giữa các đặc trưng và nhãn")
 plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "heatmap_correlation.png"))
 plt.close()
-print("📊 Đã lưu heatmap: heatmap_correlation.png")
+print("Đã lưu heatmap: heatmap_correlation.png")
 
-# ==== 9. Boxplot 20 đặc trưng quan trọng nhất ====
+# ==== Boxplot 20 đặc trưng quan trọng nhất ====
 selected_features = X.columns[:20]
 boxplot_df = df[selected_features.tolist() + ["Result"]]
 
@@ -131,4 +131,4 @@ plt.legend(title="Result", loc="upper right")
 plt.tight_layout()
 plt.savefig(os.path.join(RESULT_DIR, "boxplot_20_features.png"))
 plt.close()
-print("📊 Đã lưu boxplot: boxplot_20_features.png")
+print(" Đã lưu boxplot: boxplot_20_features.png")

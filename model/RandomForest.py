@@ -9,27 +9,27 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.tree import plot_tree
 
-# === 1. Đường dẫn ===
+# === Đường dẫn ===
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "result", "preprocessing", "processed_data.csv"))
 RF_RESULT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "result", "RandomForest"))
 os.makedirs(RF_RESULT_DIR, exist_ok=True)
 
-# === 2. Đọc dữ liệu ===
-print("📥 Đang đọc dữ liệu đã tiền xử lý...")
+# ===  Đọc dữ liệu ===
+print(" Đang đọc dữ liệu đã tiền xử lý...")
 if not os.path.exists(DATA_PATH):
-    print(f"❌ Không tìm thấy file: {DATA_PATH}")
+    print(f" Không tìm thấy file: {DATA_PATH}")
     exit()
 
 data = pd.read_csv(DATA_PATH)
-print("✅ Đọc dữ liệu thành công!")
+print("Đọc dữ liệu thành công!")
 
-# === 3. Đặc trưng và nhãn ===
+# ===  Đặc trưng và nhãn ===
 X = data.drop(columns=['Result'])
 y = data['Result']
 feature_names = X.columns
 
-# === 4. Thực hiện K-Fold CV ===
+# ===  Thực hiện K-Fold CV ===
 k = 5
 kf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
@@ -75,7 +75,7 @@ for depth in depths:
     if str(depth) == "11":
         all_models['depth_11'] = best_model
 
-# === 5. Vẽ biểu đồ thực nghiệm ===
+# === Vẽ biểu đồ thực nghiệm ===
 df_result = pd.DataFrame(results)
 df_result.set_index("Depth", inplace=True)
 df_result_percent = df_result * 100
@@ -104,7 +104,7 @@ ax.legend(loc="lower right")
 plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "depth_vs_metrics_kfold.png"), dpi=300)
 plt.close()
-print("✅ Đã lưu biểu đồ thực nghiệm các độ đo theo độ sâu với K-Fold!")
+print(" Đã lưu biểu đồ thực nghiệm các độ đo theo độ sâu với K-Fold!")
 
 # === 6. Đánh giá mô hình depth=11 chi tiết ===
 best_rf, X_test, y_test, y_pred = all_models['depth_11']
@@ -116,7 +116,7 @@ recall = recall_score(y_test, y_pred, average="weighted")
 f1 = f1_score(y_test, y_pred, average="weighted")
 
 with open(os.path.join(RF_RESULT_DIR, "rf_metrics_depth11.txt"), "w", encoding="utf-8") as f:
-    f.write("📊 Classification Report:\n")
+    f.write(" Classification Report:\n")
     f.write(report + "\n")
     f.write(f"Criterion:  {best_rf.criterion}\n")
     f.write(f"Max depth:  {best_rf.max_depth}\n")
@@ -180,11 +180,11 @@ plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "rf_metrics_barplot_depth11.png"), dpi=300)
 plt.close()
 
-print("✅ Hoàn tất toàn bộ quá trình đánh giá mô hình Random Forest với K-Fold!")
+print(" Hoàn tất toàn bộ quá trình đánh giá mô hình Random Forest với K-Fold!")
 # === 7. Huấn luyện mô hình cuối cùng với toàn bộ tập dữ liệu ===
 from sklearn.model_selection import train_test_split
 
-print("🚀 Huấn luyện mô hình cuối cùng với max_depth = 11...")
+print(" Huấn luyện mô hình cuối cùng với max_depth = 11...")
 
 # Chia tập huấn luyện và kiểm tra
 X_train_final, X_test_final, y_train_final, y_test_final = train_test_split(
@@ -208,16 +208,16 @@ report_final = classification_report(y_test_final, y_pred_final, digits=4)
 
 # Lưu classification report
 with open(os.path.join(RF_RESULT_DIR, "rf_final_model_report.txt"), "w", encoding="utf-8") as f:
-    f.write("📊 Classification Report (Final Model):\n")
+    f.write(" Classification Report (Final Model):\n")
     f.write(report_final + "\n")
     f.write(f"Accuracy:   {acc_final:.4f}\n")
     f.write(f"Precision:  {prec_final:.4f}\n")
     f.write(f"Recall:     {rec_final:.4f}\n")
     f.write(f"F1-score:   {f1_final:.4f}\n")
 
-print("✅ Đã huấn luyện và đánh giá mô hình cuối cùng!")
+print(" Đã huấn luyện và đánh giá mô hình cuối cùng!")
 
-# === 8. Confusion Matrix
+# === Confusion Matrix
 plt.figure(figsize=(5, 4))
 sns.heatmap(confusion_matrix(y_test_final, y_pred_final), annot=True, fmt='d', cmap='Blues')
 plt.title("Confusion Matrix (Final Model)")
@@ -227,7 +227,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "confusion_matrix_final_model.png"), dpi=300)
 plt.close()
 
-# === 9. Feature Importance
+# ===  Feature Importance
 importances_final = final_model.feature_importances_
 indices_final = np.argsort(importances_final)[::-1]
 
@@ -241,7 +241,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "feature_importance_final_model.png"), dpi=300)
 plt.close()
 
-# === 10. Plot tree (minh họa một cây)
+# ===  Plot tree (minh họa một cây)
 plt.figure(figsize=(20, 10))
 plot_tree(final_model.estimators_[0],
           filled=True,
@@ -255,7 +255,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "example_tree_final_model.png"), dpi=300)
 plt.close()
 
-# === 11. Barplot các độ đo
+# ===  Barplot các độ đo
 metrics_final = [acc_final, prec_final, rec_final, f1_final]
 labels_final = ["Accuracy", "Precision", "Recall", "F1-score"]
 
@@ -272,7 +272,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(RF_RESULT_DIR, "rf_metrics_barplot_final_model.png"), dpi=300)
 plt.close()
 
-# === 12. Lưu mô hình (tuỳ chọn)
+# ===  Lưu mô hình (tuỳ chọn)
 import joblib
 joblib.dump(final_model, os.path.join(RF_RESULT_DIR, "final_random_forest_model.pkl"))
-print("📦 Mô hình cuối đã được lưu dưới dạng .pkl")
+print(" Mô hình cuối đã được lưu dưới dạng .pkl")
