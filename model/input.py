@@ -99,7 +99,7 @@ plt.savefig(os.path.join(PREPROC_DIR, "df_head_processed.png"), dpi=300)
 plt.close()
 print(" Đã lưu processed_data.csv và df_head_processed.png")
 
-# === 8. Biểu đồ phân bố nhãn trước/sau SMOTE ===
+# === Biểu đồ phân bố nhãn trước/sau SMOTE ===
 plt.figure(figsize=(10, 4))
 plt.subplot(1, 2, 1)
 sns.countplot(x=y_raw, hue=y_raw, palette="Set2", legend=False)
@@ -148,6 +148,9 @@ print(" Đã lưu heatmap tương quan")
 
 # === 12. In ra console (5 dòng) ===
 print("\n DỮ LIỆU GỐC:")
+print(f"Số dòng: {df.shape[0]}, Số cột: {df.shape[1]}")
 print(df.head(5))
-print("\n DỮ LIỆU SAU XỬ LÝ (20 cột + Result):")
+
+print("\n DỮ LIỆU SAU XỬ LÝ (20 đặc trưng + Result):")
+print(f"Số dòng: {df_processed.shape[0]}, Số cột: {df_processed.shape[1]}")
 print(df_processed.head(5))

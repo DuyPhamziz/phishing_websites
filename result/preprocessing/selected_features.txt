@@ -2,20 +2,20 @@
 
  1. having_IP_Address
  2. URL_Length
- 3. having_At_Symbol
+ 3. double_slash_redirecting
  4. Prefix_Suffix
  5. having_Sub_Domain
  6. SSLfinal_State
  7. Domain_registeration_length
- 8. port
+ 8. HTTPS_token
  9. Request_URL
 10. URL_of_Anchor
 11. Links_in_tags
 12. SFH
-13. Abnormal_URL
-14. Redirect
-15. on_mouseover
-16. age_of_domain
+13. Redirect
+14. on_mouseover
+15. age_of_domain
+16. DNSRecord
 17. web_traffic
 18. Page_Rank
 19. Google_Index
