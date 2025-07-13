@@ -1,0 +1,20 @@
+[RandomForest] Classification Report - RAW
+              precision    recall  f1-score   support
+
+          -1       0.97      0.96      0.96       956
+           1       0.97      0.98      0.97      1255
+
+    accuracy                           0.97      2211
+   macro avg       0.97      0.97      0.97      2211
+weighted avg       0.97      0.97      0.97      2211
+
+
+[RandomForest] Classification Report - PROCESSED
+              precision    recall  f1-score   support
+
+          -1       0.98      0.97      0.97      1204
+           1       0.97      0.98      0.97      1259
+
+    accuracy                           0.97      2463
+   macro avg       0.97      0.97      0.97      2463
+weighted avg       0.97      0.97      0.97      2463
